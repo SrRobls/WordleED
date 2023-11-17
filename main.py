@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import assets
 from words5 import *
 from words6 import *
 from words4 import *
@@ -15,9 +16,9 @@ WIDTH, HEIGHT = 1300, 700
 
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 #Por defecto el fondo es de 4 casillas
-BACKGROUND  = pygame.image.load("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/tabla4.jpg")
-BACKGRONDPREGUNTA= pygame.image.load("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/backgroundpregunta.jpg")
-ICON = pygame.image.load("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/Icon.png")
+BACKGROUND  = pygame.image.load("assets/tabla4.jpg")
+BACKGRONDPREGUNTA= pygame.image.load("assets/backgroundpregunta.jpg")
+ICON = pygame.image.load("assets/Icon.png")
 BACKGROUND_RECT = BACKGROUND.get_rect(center=(216, 300))
 
 pygame.display.set_caption("Wordle!")
@@ -33,9 +34,8 @@ CORRECT_WORD = "karen"
 
 ALPHABET = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
 
-GUESSED_LETTER_FONT = pygame.font.Font("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/FreeSansBold.otf", 35)
-AVAILABLE_LETTER_FONT = pygame.font.Font("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/FreeSansBold.otf", 15)
-
+GUESSED_LETTER_FONT = pygame.font.Font("assets/FreeSansBold.otf", 35)
+AVAILABLE_LETTER_FONT = pygame.font.Font("assets/FreeSansBold.otf", 15)
 
 # Dibuja la pantalla de selección de dificultad
 # Dibuja la pantalla de selección de dificultad
@@ -63,7 +63,6 @@ difficulty_input = "4"  # Valor predeterminado
 user_selected_difficulty = None
 
 
-
 # Bucle de selección de dificultad
 while user_selected_difficulty is None:
     draw_difficulty_selection()  # Dibuja la interfaz de selección de dificultad
@@ -81,7 +80,7 @@ while user_selected_difficulty is None:
                     if user_selected_difficulty==4:
                         CORRECT_WORD = random.choice(WORDS4)
                         print(CORRECT_WORD)
-                        # BACKGROUND = pygame.image.load("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/tabla4.png")
+                        # BACKGROUND = pygame.image.load("assets/tabla4.png")
                     elif user_selected_difficulty==5:
                         CORRECT_WORD = random.choice(WORDS)
                         print(CORRECT_WORD)
@@ -107,13 +106,13 @@ SCREEN.fill("white")
 
 # NOTA: TOCA ACOMODAR BIEN LAS CELDAS (QUE SON IMAGENES) PARA QUE QUEDEN BIEN ADECUADAS (NOTAR QUE PARA ALGUNAS SE BUGGUEA Y SE VE FEO)
 if user_selected_difficulty == 5:
-    BACKGROUND = pygame.image.load("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/tabla5.png")
+    BACKGROUND = pygame.image.load("assets/tabla5.png")
 elif user_selected_difficulty == 6:
-    BACKGROUND = pygame.image.load("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/tabla6.jpg")
+    BACKGROUND = pygame.image.load("assets/tabla6.jpg")
 elif user_selected_difficulty == 7:
-    BACKGROUND = pygame.image.load("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/tabla7.jpg")
+    BACKGROUND = pygame.image.load("assets/tabla7.jpg")
 elif user_selected_difficulty == 8:
-    BACKGROUND = pygame.image.load("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/tabla8.png")
+    BACKGROUND = pygame.image.load("assets/tabla8.png")
 BACKGROUND_RECT = BACKGROUND.get_rect(center=(216, 300))
 SCREEN.blit(BACKGROUND, BACKGROUND_RECT)
 
@@ -121,7 +120,7 @@ SCREEN.blit(BACKGROUND, BACKGROUND_RECT)
 
 pygame.display.update()
 
-LETTER_X_SPACING = 85
+LETTER_X_SPACING = 90
 LETTER_Y_SPACING = 12
 LETTER_SIZE = 75
 
@@ -136,6 +135,14 @@ guesses = [[]] * 6
 current_guess = []
 current_guess_string = ""
 current_letter_bg_x = 8
+
+
+total_partidas = 1
+aciertos = 0
+fallos = 0
+racha_actual = 0
+mayor_racha = 0
+
 
 # Indicators is a list storing all the Indicator object. An indicator is that button thing with all the letters you see.
 indicators = []
@@ -208,13 +215,12 @@ for i in range(3):
 
 def check_guess(guess_to_check):
     # Goes through each letter and checks if it should be green, yellow, or grey.
-    global current_guess, current_guess_string, guesses_count, current_letter_bg_x, game_result
+    global current_guess, current_guess_string, guesses_count, current_letter_bg_x, game_result, aciertos, racha_actual, mayor_racha, fallos
     game_decided = False
     for i in range(user_selected_difficulty):
-        print("guess_to_check: ",guess_to_check)
         
         lowercase_letter = guess_to_check[i].text.lower()
-        print("lowercase_letter", lowercase_letter)
+        # print("lowercase_letter", lowercase_letter)
         if lowercase_letter in CORRECT_WORD:
             if lowercase_letter == CORRECT_WORD[i]:
                 guess_to_check[i].bg_color = GREEN
@@ -244,7 +250,6 @@ def check_guess(guess_to_check):
             game_result = ""
             game_decided = True
         guess_to_check[i].draw()
-        print(guess_to_check)
         pygame.display.update()
     
     guesses_count += 1
@@ -252,22 +257,35 @@ def check_guess(guess_to_check):
     current_guess_string = ""
     current_letter_bg_x = 8
 
+    if game_result == "W":
+        aciertos += 1
+        racha_actual += 1
+        if racha_actual > mayor_racha:
+            mayor_racha = racha_actual    
     if guesses_count == 6 and game_result == "":
+        fallos += 1
+        racha_actual = 0
         game_result = "L"
 
 def play_again():
- 
 
     # Puts the play again text on the screen.
     pygame.draw.rect(SCREEN, "white", (10, 600, 1000, 600))
-    play_again_font = pygame.font.Font("C:/Users/Johan/Desktop/Jugeo/trabajoED-main/Wordle-PyGame/assets/FreeSansBold.otf", 20)
+    play_again_font = pygame.font.Font("assets/FreeSansBold.otf", 20)
     play_again_text = play_again_font.render("Press ENTER to Play Again!", True, "black")
     play_again_rect = play_again_text.get_rect(center=(WIDTH/2, 400))
     word_was_text = play_again_font.render(f"The word was {CORRECT_WORD}!", True, "black")
     word_was_rect = word_was_text.get_rect(center=(WIDTH/2, 650))
     SCREEN.blit(word_was_text, word_was_rect)
     SCREEN.blit(play_again_text, play_again_rect)
-    
+
+    stats_text = play_again_font.render(
+        f"Partidas: {total_partidas}  |  Aciertos: {aciertos}  |  Fallos: {fallos}  |  % Victorias: {aciertos / total_partidas * 100:.2f}  |  Racha Actual: {racha_actual}  |  Mayor Racha: {mayor_racha}",
+        True, "black"
+    )
+    stats_rect = stats_text.get_rect(center=(WIDTH / 2, 450))
+    SCREEN.blit(stats_text, stats_rect)
+
     pygame.display.update()
 
 
@@ -376,6 +394,8 @@ while True:
                         if user_selected_difficulty is not None:
                             pregunta=False  # El usuario ha seleccionado la dificultad, sal del bucle
                     print(user_selected_difficulty, '!!')
+                    total_partidas = int(total_partidas) + 1
+                    print('total_partidas:', total_partidas)
                     reset()  # Reinicia el juego
                 else:
                     if user_selected_difficulty == 4:
@@ -389,8 +409,8 @@ while True:
                     elif user_selected_difficulty == 8:
                         palbras = WORDS8
                     if len(current_guess_string) == user_selected_difficulty and current_guess_string.lower() in palbras:
-                        print("wordcurrent: " ,current_guess)
-                        print(user_selected_difficulty, "!!")
+                        # print("wordcurrent: " ,current_guess)
+                        # print(user_selected_difficulty, "!!")
                         check_guess(current_guess)  # Verifica la conjetura del usuario
                         # print("current string : " , current_guess_string.lower())
 
