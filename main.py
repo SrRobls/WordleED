@@ -1,7 +1,7 @@
 import pygame
 import sys
 import random
-import assets
+
 from words5 import *
 from words6 import *
 from words4 import *
@@ -12,7 +12,7 @@ pygame.init()
 
 # Constants
 
-WIDTH, HEIGHT = 1300, 700
+WIDTH, HEIGHT = 1500, 700
 
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 #Por defecto el fondo es de 4 casillas
@@ -199,7 +199,7 @@ class Indicator:
 
 # Drawing the indicators on the screen.
 
-indicator_x, indicator_y = 700, 20
+indicator_x, indicator_y = 800, 20
 
 for i in range(3):
     for letter in ALPHABET[i]:
@@ -209,9 +209,9 @@ for i in range(3):
         indicator_x += 60
     indicator_y += 100
     if i == 0:
-        indicator_x = 730
+        indicator_x = 830
     elif i == 1:
-        indicator_x = 785
+        indicator_x = 885
 
 def check_guess(guess_to_check):
     # Goes through each letter and checks if it should be green, yellow, or grey.
